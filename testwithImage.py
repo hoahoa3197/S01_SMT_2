@@ -1,66 +1,61 @@
 import cv2
-from cv2 import imread
 import numpy as np
 import matplotlib.pyplot as plt
-img = imread(r'C:\Users\BOSS\Desktop\B01-SMT\Data\image\IMG_20221019_140511.jpg')
+def nothing(x):
+    pass
 
-img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
+cv2.namedWindow("Trackbar")
+cv2.createTrackbar("Threshhold1","Trackbar",100,255, nothing)
+cv2.createTrackbar("Threshhold2","Trackbar",0,255, nothing)
+cv2.createTrackbar("Area","Trackbar",10,50000, nothing)
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
+cv2.createTrackbar("Width","Trackbar",0,255,nothing)
+cv2.createTrackbar("Height","Trackbar",0,255,nothing)
 
-# # Find Canny edges
-# edged = cv2.Canny(gray_resize, thresh1, 255)
-ret,thresh_img = cv2.threshold(gray_resize,200 ,255,cv2.THRESH_BINARY)
+img = cv2.imread(r'C:\Users\BOSS\Desktop\B01-SMT\Data\image\dev.png')
 
+while True:
+    thresh1 = cv2.getTrackbarPos("Threshhold1","Trackbar")
+    thresh2 = cv2.getTrackbarPos("Threshhold2","Trackbar")
+    value_area = cv2.getTrackbarPos("Area","Trackbar")
+    width = cv2.getTrackbarPos("Width","Trackbar")
+    height = cv2.getTrackbarPos("Height","Trackbar")
+    img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
 
-contours, hierarchy = cv2.findContours(thresh_img,
-    cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-for cnt in contours:
-    rect = cv2.minAreaRect(cnt)
-    box = cv2.boxPoints(rect)
-    box = np.int0(box)
-    cv2.drawContours(img_resize,[box],0,(0,255,0))
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
+    ret,thresh_img = cv2.threshold(gray_resize,thresh1,255,cv2.THRESH_BINARY)
+    kernel = np.ones((2,2), np.uint8)
     
-    
-cv2.imshow('Canny Edges After Contouring', thresh_img)
+    # Using cv2.erode() method 
+    thresh_img = cv2.erode(thresh_img, kernel, cv2.BORDER_REFLECT)
 
-# Draw all contoursq
-# -1 signifies drawing all contours
-
-cv2.imshow('Contours', img_resize)
-cv2.waitKey(0)
-
-# import cv2
-# import numpy as np
-
-# # Let's load a simple image with 3 black squares
-# img = cv2.imread(r"C:\Users\BOSS\Desktop\VT2\Data\image\IMG_20221018_172618.jpg")
-# img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
-# gray = cv2.imread(r"C:\Users\BOSS\Desktop\VT2\Data\image\IMG_20221018_172618.jpg",0)
-
-# # Grayscale
-# # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-# gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
-
-# # Find Canny edges
-# edged = cv2.Canny(gray_resize, 30, 200)
-
-
-# # Finding Contours
-# # Use a copy of the image e.g. edged.copy()
-# # since findContours alters the image
-# contours, hierarchy = cv2.findContours(edged,
-# 	cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-# cv2.imshow('Canny Edges After Contouring', edged)
-
-# print("Number of Contours found = " + str(len(contours)))
-
-# # Draw all contours
-# # -1 signifies drawing all contours
-# cv2.drawContours(img_resize, contours, -1, (0, 255, 0), 3)
-
-# cv2.imshow('Contours', img_resize)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+    contours, hierarchy = cv2.findContours(thresh_img,
+        cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area >value_area:
+            x, y, w, h = cv2.boundingRect(cnt)
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            M = cv2.moments(box)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            
+            # draw the contour and center of the shape on the image
+            cv2.drawContours(img_resize,[box],-1, (0, 255, 0))
+            cv2.circle(img_resize, (cX, cY), 1, (255, 255, 255), -1)
+            cv2.putText(img_resize, "center", (cX - 20, cY - 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            
+            
+           
+    cv2.imshow('Canny Edges After Contouring', thresh_img)
+    cv2.imshow('Contours', img_resize)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+# After the loop release the cap object
+cap.release()
+# Destroy all the windows
+cv2.destroyAllWindows()
