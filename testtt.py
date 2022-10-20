@@ -1,3 +1,4 @@
+from calendar import c
 import math
 import cv2
 import numpy as np
@@ -7,6 +8,74 @@ curDir = os.path.dirname(os.path.realpath(__file__))
 print(curDir)
 img_path = os.path.join(curDir,"image")
 print(img_path)
+def get_distance(start_point, dest_point):
+    x1, y1 = start_point
+    x2, y2 = dest_point
+    dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return dist
+
+def linePoints( x0,  y0,  x1,  y1):
+    pointsOfLine=[]
+
+    dx = abs(x1-x0)
+    sx =  1 if x0<x1 else -1
+    dy = abs(y1-y0)
+    sy = 1 if y0<y1 else -1
+    err = (dx if dx>dy else  -dy)/2
+
+    while 1:
+
+        pointsOfLine.append((x0,y0))
+        if x0==x1 and y0==y1:
+            break
+        e2 = err
+        if e2 >-dx:
+            err -= dy
+            x0 += sx
+        if e2 < dy:
+            err += dx
+            y0 += sy
+    return pointsOfLine
+def getDesPoint(sizeofscr,start_point,dest_point):
+        res_point=None
+        fx = abs(start_point[0] - dest_point[0])
+        fy = abs(start_point[1] - dest_point[1])
+        end_points=None
+        if (start_point[0] + start_point[1]) > (dest_point[0] + dest_point[1]):
+            if fx < fy:
+                temp = abs(sizeofscr - start_point[1]) / fy
+
+                fx = (temp * fx) + start_point[0]
+                fy = (temp * fy) + start_point[1]
+                end_points= (int(fx), int(fy))
+            else:
+                temp = abs(sizeofscr - start_point[0]) / fx
+
+                fx = (temp * fx) + start_point[0]
+                fy = (temp * fy) + start_point[1]
+                end_points = (int(fx), int(fy))
+        else:
+            if fx < fy:
+                temp = abs(sizeofscr - start_point[1]) / fy
+
+                fx = (temp * fx) + start_point[0]
+                fy = (temp * fy) + start_point[1]
+                end_points = (int(fx), int(fy))
+            else:
+                temp = abs(sizeofscr - start_point[0]) / fx
+
+                fx = (temp * fx) + start_point[0]
+                fy = (temp * fy) + start_point[1]
+                end_points = (int(fx), int(fy))
+        Points=linePoints(start_point[0],start_point[1],end_points[0],end_points[1])
+        # cv2.line(blank_image, start_point, end_points, (255, 0, 0), 2)
+        # cv2.circle(blank_image, start_point, 10, (0, 255, 0), -1)
+        # cv2.circle(blank_image, dest_point, 10, (0, 255, 255), -1)
+        for point in Points:
+            if abs(get_distance(dest_point,point)-get_distance(start_point,dest_point))<=0.5:
+                if point!=start_point:
+                    res_point=point
+        return res_point
 def nothing(x):
     pass
 
@@ -22,9 +91,7 @@ cv2.createTrackbar("Height","Trackbar",0,255,nothing)
 
 
 
-cap = cv2.VideoCapture(0)
-cap.set(3,2048)
-cap.set(4,2048)
+img = cv2.imread(r'C:\Users\BOSS\Desktop\S01_SMT_2\Data\image\28972.png')
 
 while True:
     thresh1 = cv2.getTrackbarPos("Threshhold1","Trackbar")
@@ -34,13 +101,10 @@ while True:
     max_val = cv2.getTrackbarPos("maxval","Trackbar")
     val_width = cv2.getTrackbarPos("Width","Trackbar")
     val_heigt = cv2.getTrackbarPos("Height","Trackbar")
-
-    # Let's load a simple image with 3 black squares
-    _,img = cap.read()
     img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
-    ret,thresh_tem = cv2.threshold(gray_resize.copy(),118,255,cv2.THRESH_BINARY)
+    ret,thresh_tem = cv2.threshold(gray_resize.copy(),163,255,cv2.THRESH_BINARY)
     
     kernel = np.ones((1,1), np.uint8)
     thresh_tem = cv2.erode(thresh_tem, kernel, cv2.BORDER_REFLECT)
@@ -64,7 +128,7 @@ while True:
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
     #Thresh truc
     
-    edge = cv2.Canny(gray_resize,thresh1,thresh2)
+    edge = cv2.Canny(gray_resize,97,97)
     
     kernel = np.ones((1,1), np.uint8)
     thresh_tem = cv2.erode(edge, kernel, cv2.BORDER_REFLECT)
@@ -72,7 +136,7 @@ while True:
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(thresh_tem,
                     cv2.HOUGH_GRADIENT, 1, 20, param1 = 50,
-                param2 = 22, minRadius = 20, maxRadius = 30)
+                param2 = 30, minRadius = 20, maxRadius = 35)
 
     # Draw circles that are detected.
     if detected_circles is not None:
@@ -86,17 +150,15 @@ while True:
             # Draw the circumference of the circle.
             r = int(math.sqrt((a-cX)**2 +(b-cY)**2))
             circel_big = cv2.circle(img_resize, (a, b), r, 180, 2)
-            img_temp = np.zeros((500,500),np.uint8)
-            cv2.circle(img_temp,(250,250),100,255)
-            points_circle=np.transpose(np.where(img_resize==255))
-            for point in points_circle:
-                pass
-            
             
             # Draw a small circle (of radius 1) to show the center.
             cv2.circle(img_resize, (a, b), 1, (0, 0, 255), 3)
-            cv2.imshow('haha', img_temp)
-    cv2.line(img_resize,(cX,cY),(a,b),(255,255,0))
+            cv2.line(img_resize,(cX,cY),(a,b),(255,255,0))
+
+            end_point = getDesPoint(500,(cX,cY),(a,b))
+        
+
+        cv2.line(img_resize,(a,b),(end_point),(255,255,255))
     
             
     cv2.imshow('Thresh tem', thresh_tem)
@@ -106,7 +168,6 @@ while True:
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-# After the loop release the cap object
-cap.release()
+# After the loop release 
 # Destroy all the windows
 cv2.destroyAllWindows()

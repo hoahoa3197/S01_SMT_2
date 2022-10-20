@@ -250,6 +250,20 @@ class Ui_MainWindow(object):
 "color:#DDDDDD;")
         self.lb_DatePrint.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lb_DatePrint.setObjectName("lb_DatePrint")
+        self.btnCapture = QtWidgets.QPushButton(self.homePage)
+        self.btnCapture.setGeometry(QtCore.QRect(560, 500, 111, 41))
+        self.btnCapture.setStyleSheet("*{color:#DDDDDD;\n"
+"background-color: rgb(52, 59, 72);\n"
+"border:none;\n"
+"font-size: 14px;\n"
+"border-radius:10px;\n"
+"}\n"
+":hover{\n"
+"border: solid red;\n"
+"background-color: rgb(100, 100, 100);\n"
+"}\n"
+"")
+        self.btnCapture.setObjectName("btnCapture")
         self.stackedWidget.addWidget(self.homePage)
         self.dataPage = QtWidgets.QWidget()
         self.dataPage.setObjectName("dataPage")
@@ -421,22 +435,22 @@ class Ui_MainWindow(object):
         self.btnConnectPrinter = QtWidgets.QPushButton(self.pagePrinterConfig)
         self.btnConnectPrinter.setGeometry(QtCore.QRect(70, 150, 75, 23))
         self.btnConnectPrinter.setObjectName("btnConnectPrinter")
-        self.widget = QtWidgets.QWidget(self.pagePrinterConfig)
-        self.widget.setGeometry(QtCore.QRect(60, 60, 174, 54))
-        self.widget.setObjectName("widget")
-        self.gridLayout = QtWidgets.QGridLayout(self.widget)
+        self.layoutWidget = QtWidgets.QWidget(self.pagePrinterConfig)
+        self.layoutWidget.setGeometry(QtCore.QRect(60, 60, 174, 54))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.layoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.label = QtWidgets.QLabel(self.widget)
+        self.label = QtWidgets.QLabel(self.layoutWidget)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-        self.txtHost = QtWidgets.QLineEdit(self.widget)
+        self.txtHost = QtWidgets.QLineEdit(self.layoutWidget)
         self.txtHost.setObjectName("txtHost")
         self.gridLayout.addWidget(self.txtHost, 0, 1, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.widget)
+        self.label_2 = QtWidgets.QLabel(self.layoutWidget)
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
-        self.txtPort = QtWidgets.QLineEdit(self.widget)
+        self.txtPort = QtWidgets.QLineEdit(self.layoutWidget)
         self.txtPort.setObjectName("txtPort")
         self.gridLayout.addWidget(self.txtPort, 1, 1, 1, 1)
         self.stackedWidget.addWidget(self.pagePrinterConfig)
@@ -513,7 +527,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -527,6 +541,7 @@ class Ui_MainWindow(object):
         self.lb_LOT.setText(_translate("MainWindow", "LOT"))
         self.lb_DATE.setText(_translate("MainWindow", "DATE"))
         self.lb_DatePrint.setText(_translate("MainWindow", "PRINT DATE"))
+        self.btnCapture.setText(_translate("MainWindow", "Capture"))
         item = self.dataTableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Mã NCU"))
         item = self.dataTableWidget.horizontalHeaderItem(1)

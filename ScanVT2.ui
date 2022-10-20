@@ -36,7 +36,7 @@ color: rgb(221, 221, 221);
      <string notr="true">background-color: rgb(40, 44, 52);</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="homePage">
      <widget class="QLabel" name="lbLog">
@@ -493,6 +493,32 @@ color:#DDDDDD;</string>
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="QPushButton" name="btnCapture">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>500</y>
+        <width>111</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">*{color:#DDDDDD;
+background-color: rgb(52, 59, 72);
+border:none;
+font-size: 14px;
+border-radius:10px;
+}
+:hover{
+border: solid red;
+background-color: rgb(100, 100, 100);
+}
+</string>
+      </property>
+      <property name="text">
+       <string>Capture</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="dataPage">
      <widget class="QTableWidget" name="dataTableWidget">
@@ -860,7 +886,7 @@ background-color: rgb(100, 100, 100);
        <string>Connect</string>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>60</x>
