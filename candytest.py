@@ -9,8 +9,8 @@ cv2.createTrackbar("Threshhold1","Trackbar",100,255, nothing)
 cv2.createTrackbar("Threshhold2","Trackbar",0,255, nothing)
 cv2.createTrackbar("Area","Trackbar",10,50000, nothing)
 
-cv2.createTrackbar("minval","Trackbar",0,10000,nothing)
-cv2.createTrackbar("maxval","Trackbar",0,50000,nothing)
+cv2.createTrackbar("minval","Trackbar",90,2048,nothing)
+cv2.createTrackbar("maxval","Trackbar",80,2048,nothing)
 cv2.createTrackbar("Width","Trackbar",0,255,nothing)
 cv2.createTrackbar("Height","Trackbar",0,255,nothing)
 
@@ -31,22 +31,14 @@ while True:
 
     # Let's load a simple image with 3 black squares
     _,img = cap.read()
-    img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
 
-    # Blur using 3 * 3 kernel.
-    # gray_blurred = cv2.blur(gray_resize, (5, 5))
-    # ret,thresh_tem = cv2.threshold(gray_resize.copy(),76,255,cv2.THRESH_BINARY)
-    edge = cv2.Canny(gray_resize,thresh1,thresh2)
-    
-    kernel = np.ones((1,1), np.uint8)
-    thresh_tem = cv2.erode(edge, kernel, cv2.BORDER_REFLECT)
+    gray_br = cv2.medianBlur(gray, 7)
     
     # Apply Hough transform on the blurred image.
-    detected_circles = cv2.HoughCircles(thresh_tem,
-                    cv2.HOUGH_GRADIENT, 1, 20, param1 = 50,
-                param2 = 20, minRadius = 20, maxRadius = 30)
+    detected_circles = cv2.HoughCircles(gray_br,
+                    cv2.HOUGH_GRADIENT, 1, 100, param1 = 100,
+                param2 = 28, minRadius = 80, maxRadius = 90)
 
     # Draw circles that are detected.
     if detected_circles is not None:
@@ -56,14 +48,15 @@ while True:
 
         for pt in detected_circles[0, :]:
             a, b, r = pt[0], pt[1], pt[2]
+            print(r)
 
             # Draw the circumference of the circle.
-            cv2.circle(img_resize, (a, b), r, (0, 255, 0), 2)
+            # cv2.circle(img, (a, b), r, (0, 255, 0), 2)
 
             # Draw a small circle (of radius 1) to show the center.
-            cv2.circle(img_resize, (a, b), 1, (0, 0, 255), 3)
+            # cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
+    img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
     cv2.imshow("Detected Circle", img_resize)
-    cv2.imshow("Gray", thresh_tem)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 # After the loop release the cap object

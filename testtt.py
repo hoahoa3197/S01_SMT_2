@@ -1,9 +1,11 @@
 from calendar import c
 import math
 import cv2
+from matplotlib.path import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import os 
+import os
 curDir = os.path.dirname(os.path.realpath(__file__))
 print(curDir)
 img_path = os.path.join(curDir,"image")
@@ -89,11 +91,12 @@ cv2.createTrackbar("maxval","Trackbar",0,50000,nothing)
 cv2.createTrackbar("Width","Trackbar",0,255,nothing)
 cv2.createTrackbar("Height","Trackbar",0,255,nothing)
 
+path=r'C:\Users\BOSS\Desktop\B01-SMT\Data\image\\'
+files =os.listdir(path)
+img = cv2.imread(r'C:\Users\BOSS\Desktop\B01-SMT\Data\image\28972.png')
 
-
-img = cv2.imread(r'C:\Users\BOSS\Desktop\S01_SMT_2\Data\image\28972.png')
-
-while True:
+for file in files:
+    img=cv2.imread(path+file)
     thresh1 = cv2.getTrackbarPos("Threshhold1","Trackbar")
     thresh2 = cv2.getTrackbarPos("Threshhold2","Trackbar")
     value_area = cv2.getTrackbarPos("Area","Trackbar")
@@ -163,11 +166,11 @@ while True:
             
     cv2.imshow('Thresh tem', thresh_tem)
     cv2.imshow('Contours', img_resize)
+    cv2.waitKey(0)
     
     
-    
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # if cv2.waitKey(0) & 0xFF == ord('q'):
+    #     break
 # After the loop release 
 # Destroy all the windows
 cv2.destroyAllWindows()
