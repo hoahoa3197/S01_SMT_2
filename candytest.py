@@ -13,6 +13,7 @@ cv2.createTrackbar("minval","Trackbar",90,2048,nothing)
 cv2.createTrackbar("maxval","Trackbar",80,2048,nothing)
 cv2.createTrackbar("Width","Trackbar",0,255,nothing)
 cv2.createTrackbar("Height","Trackbar",0,255,nothing)
+cv2.resizeWindow("Trackbar",300,300)
 
 
 

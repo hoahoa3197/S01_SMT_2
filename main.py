@@ -35,6 +35,9 @@ class VideoThread(QThread):
         self.cap.set(3,2048)
         self.cap.set(4,2048)
         self.serialPLC = serial.Serial(port = "COM15", baudrate = 115200,timeout=0.001)
+        
+        
+        
     def run(self):
         # capture from web cam
         while True:
@@ -43,7 +46,6 @@ class VideoThread(QThread):
                 self.change_pixmap_signal.emit(cv_img)
             dataPLC = self.serialPLC.readline().decode("utf-8")
             if dataPLC != '':
-                print(dataPLC)
                 self.signal_PLC.emit(dataPLC)
             # self.signal_PLC.connect(self.reviceDataPLc)
         
@@ -81,7 +83,11 @@ class MainWindow(QMainWindow):
         self.uic.btnPrint.clicked.connect(self.btnPrintClicked)
         self.uic.dataTableWidget.verticalHeader().sectionClicked.connect(self.verticalHeaderClicked)
         self.uic.btnCapture.clicked.connect(self.btnCaptureClicked)
-        # start the thread
+        
+        # Qthread pool
+        self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(5000)
+        
         self.camera.start()
         self.oldDataResult = []
         self.counter = 0
@@ -225,13 +231,12 @@ class MainWindow(QMainWindow):
         resultScanCode = zxingcpp.read_barcodes(frame)
         for result in resultScanCode:
             if str(result.format) == "BarcodeFormat.DataMatrix" or str(result.format) == "BarcodeFormat.QRCode":
-                [self.x1,self.y1] = result.position.bottom_left.x,result.position.bottom_left.y
-                [self.x2,self.y2] = result.position.bottom_right.x,result.position.bottom_right.y
-                [self.x3,self.y3] = result.position.top_right.x,result.position.top_right.y
-                [self.x4,self.y4] = result.position.top_left.x,result.position.top_left.y
-                self.pointQR = np.array([[self.x1,self.y1],[self.x2,self.y2],[self.x3,self.y3],[self.x4,self.y4]])
-                self.pointQR = self.pointQR.reshape((-1,1,2))
-                return result.text.split(",")
+                [x1,y1] = result.position.bottom_left.x,result.position.bottom_left.y
+                [x2,y2] = result.position.bottom_right.x,result.position.bottom_right.y
+                [x3,y3] = result.position.top_right.x,result.position.top_right.y
+                [x4,y4] = result.position.top_left.x,result.position.top_left.y
+                
+                return {'data' :result.text.split(","),'pos1': [x1,y1],'pos2': [x2,y2],'pos3': [x3,y3],'pos4': [x4,y4]}
             # DataMaxtrix format : PN_Vendor_LOT_DateCode_Quantity_MaCongDon_CreateDate(timestamp)
     def get_distance(self,start_point, dest_point):
         x1, y1 = start_point
@@ -268,8 +273,8 @@ class MainWindow(QMainWindow):
         fy = abs(start_point[1] - dest_point[1])
         end_points=None
         theta = np.arctan2(start_point[1]-dest_point[1], start_point[0]-dest_point[0])
-        endpt_x = int(start_point[0] - 1000*np.cos(theta))
-        endpt_y = int(start_point[1] - 1000*np.sin(theta))
+        endpt_x = int(start_point[0] - 2500*np.cos(theta))
+        endpt_y = int(start_point[1] - 2500*np.sin(theta))
         end_points= (endpt_x, endpt_y)
         print("End_point:" ,end_points)
         Points=self.linePoints(start_point[0],start_point[1],end_points[0],end_points[1])
@@ -281,88 +286,80 @@ class MainWindow(QMainWindow):
         return res_point
     
     def processImage(self):
-        
+        gray = cv2.cvtColor(self.cv_img,cv2.COLOR_BGR2GRAY)
         if self.flag == True:
-            cv2.destroyAllWindows()
-            print("Vaoooo")
-            dataResult = self.read_barcode_zxing(self.cv_img)
-            if dataResult is not None:
-                    dataResult = [data.replace('"','') for data in dataResult]
-                    print(dataResult)
-                    self.processData(dataResult)
+            ret,thresh_tem = cv2.threshold(gray.copy(),210,255,cv2.THRESH_BINARY)
+            kernel = np.ones((1,1), np.uint8)
+            thresh_tem = cv2.erode(thresh_tem, kernel, cv2.BORDER_REFLECT)
+            contours, hierarchy = cv2.findContours(thresh_tem,cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            pointCenterTem=None
+            for cnt in contours:
+                area = cv2.contourArea(cnt)
+                if area >250000:
+                    print("FIND AREAA")
+                    x,y,wid,hei=cv2.boundingRect(cnt)
+                    img_read=self.cv_img[y:y+hei,x:x+wid]
+                    self.dataResult = self.read_barcode_zxing(img_read)
+                    if  self.dataResult is not None:
+                        pos1 =( self.dataResult['pos1'][0]+x, self.dataResult['pos1'][1]+y)
+                        pos2 =( self.dataResult['pos2'][0]+x, self.dataResult['pos2'][1]+y)
+                        pos3 =( self.dataResult['pos3'][0]+x, self.dataResult['pos3'][1]+y)
+                        pos4 =( self.dataResult['pos4'][0]+x, self.dataResult['pos4'][1]+y)
+                        resultPoint1 = cv2.pointPolygonTest(cnt, pos1, False) 
+                        resultPoint2 = cv2.pointPolygonTest(cnt, pos2, False)
+                        resultPoint3 = cv2.pointPolygonTest(cnt, pos3, False)
+                        resultPoint4 = cv2.pointPolygonTest(cnt, pos4, False)
+                        if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
+                            rect = cv2.minAreaRect(cnt)
+                            box = cv2.boxPoints(rect)
+                            box = np.int0(box)
+                            M = cv2.moments(box)
+                            cX = int(M["m10"] / M["m00"])
+                            cY = int(M["m01"] / M["m00"])
+                            pointCenterTem =(cX,cY)
+                            print("Da thay centroid cua tem : ", pointCenterTem)
+                #             # draw the contour and center of the shape on the image
+                            cv2.drawContours(self.cv_img,[box],-1, (255, 255, 0),5)
+                            cv2.circle(self.cv_img, (cX, cY), 1, (255, 255, 255),5)
+                            cv2.putText(self.cv_img, "center", (cX - 20, cY - 20),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 5)
+            blur_img = cv2.medianBlur(gray,111)
+            thresh_meanC = cv2.adaptiveThreshold(blur_img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
+            kernel = np.ones((5, 5), np.uint8)
+            erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
+            dilation = cv2.dilate(erosion, kernel, iterations=1)
+            detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,
+                                    minRadius=60, maxRadius=80)
+            Point_Cirle=None
+            # Draw circles that are detected.
+            if detected_circles is not None:
+                # Convert the circle parameters a, b and r to integers.
+                detected_circles = np.uint16(np.around(detected_circles))
 
-                    #Get position paste
-                    # img_resize = cv2.resize(self.cv_img,(500,500),interpolation=cv2.INTER_CUBIC)
-                    gray = cv2.cvtColor(self.cv_img, cv2.COLOR_BGR2GRAY)
-                    # gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
-                    ret,thresh_tem = cv2.threshold(gray.copy(),170,255,cv2.THRESH_BINARY)
+                for pt in detected_circles[0, :]:
+                    a, b, r = pt[0], pt[1], pt[2]
+                    Point_Cirle=(a, b)
+                    # Draw the circumference of the circle.
+                    cv2.circle(self.cv_img, (a, b), r, (0, 255, 0), 5)
+
+                    # Draw a small circle (of radius 1) to show the center.
+                    cv2.circle(self.cv_img, (a, b), 1, (0, 0, 255), 5)
                     
-                    kernel = np.ones((1,1), np.uint8)
-                    thresh_tem = cv2.erode(thresh_tem, kernel, cv2.BORDER_REFLECT)
-                    contours, hierarchy = cv2.findContours(thresh_tem,
-                        cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-                    for cnt in contours:
-                        area = cv2.contourArea(cnt)
-                        if area >40000:
-                            resultPoint1 = cv2.pointPolygonTest(cnt, (self.x1,self.y1), False) 
-                            resultPoint2 = cv2.pointPolygonTest(cnt, (self.x2,self.y2), False)
-                            resultPoint3 = cv2.pointPolygonTest(cnt, (self.x3,self.y3), False)
-                            resultPoint4 = cv2.pointPolygonTest(cnt, (self.x4,self.y4), False)
-                            print(resultPoint1,resultPoint2,resultPoint3,resultPoint4)
-                            if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
-                                rect = cv2.minAreaRect(cnt)
-                                box = cv2.boxPoints(rect)
-                                box = np.int0(box)
-                                M = cv2.moments(box)
-                                self.cX = int(M["m10"] / M["m00"])
-                                self.cY = int(M["m01"] / M["m00"])
-                            
-                                # draw the contour and center of the shape on the image
-                                cv2.drawContours(self.cv_img,[box],-1, (255, 255, 0),5)
-                                cv2.circle(self.cv_img, (self.cX, self.cY), 1, (255, 255, 255),5)
-                                cv2.putText(self.cv_img, "center", (self.cX - 20, self.cY - 20),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 5)
-                            # Thresh truc
-                            
-                                gray_br = cv2.medianBlur(gray, 7)
-                                detected_circles = cv2.HoughCircles(gray_br,
-                                                cv2.HOUGH_GRADIENT, 1, 100, param1 = 100,
-                                            param2 = 28, minRadius = 80, maxRadius = 90)
-
-                                # Draw circles that are detected.
-                                if detected_circles is not None:
-                                    # Convert the circle parameters a, b and r to integers.
-                                    detected_circles = np.uint16(np.around(detected_circles))
-
-                                    for pt in detected_circles[0, :]:
-                                        a, b, r = pt[0], pt[1], pt[2]
-                                        # Draw the circumference of the circle.
-                                        cv2.circle(self.cv_img, (a, b), r, (0, 255, 0), 5)
-
-                                        # Draw a small circle (of radius 1) to show the center.
-                                        cv2.circle(self.cv_img, (a, b), 1, (0, 0, 255), 5)
-                                        cv2.line(self.cv_img,(self.cX,self.cY),(a,b),(255,255,0),5)
-                                        hei,wid,_=self.cv_img.shape
-                                        end_point = self.getDesPoint(self.cv_img,(self.cX,self.cY),(a,b))
-                                    
-
-                                        cv2.line(self.cv_img,(a,b),(end_point),(255,255,255),5)
+                if  Point_Cirle is not None and pointCenterTem is not None:
+                        cv2.line(self.cv_img,(cX,cY),(a,b),(255,255,0),5)
+                        hei,wid,_=self.cv_img.shape
+                        end_point = self.getDesPoint(self.cv_img,(cX,cY),(a,b))
+                        cv2.circle(self.cv_img, end_point, 5, (0, 0, 255), -1)
+                        cv2.line(self.cv_img,(a,b),(end_point),(255,255,255),5)
+                        print(end_point)
                         anh1= cv2.resize(self.cv_img,(500,500))
-                    
-                            
-                    cv2.imshow('Thresh tem', thresh_tem)
-                    cv2.imshow('Contours', anh1)
-    
-
-            self.flag = False
-            
-        # else:
-        #     print("NOOO")
-
-
-
-    
-            
+                        thresh_resize = cv2.resize(thresh_tem   ,(500,500))
+                        cv2.imshow('Contours', anh1)
+                        cv2.imshow('thresh_resize',thresh_resize)
+                        self.flag = False
+                        self.processData(self.dataResult['data'])
+                print("Khong tim duoc tam")
+        else:
+            print("Loop")
     def processData(self,listData):
         print(listData)
         if len(listData) == 6:

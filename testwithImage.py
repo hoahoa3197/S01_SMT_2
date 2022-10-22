@@ -1,61 +1,61 @@
+
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 def nothing(x):
     pass
+cv2.namedWindow("1")
+cv2.createTrackbar("Threshhold1","1",170,255, nothing)
+cv2.createTrackbar("Threshhold2","1",0,255, nothing)
+cv2.createTrackbar("Area","1",10000,50000, nothing)
 
-cv2.namedWindow("Trackbar")
-cv2.createTrackbar("Threshhold1","Trackbar",100,255, nothing)
-cv2.createTrackbar("Threshhold2","Trackbar",0,255, nothing)
-cv2.createTrackbar("Area","Trackbar",10,50000, nothing)
+cv2.createTrackbar("minval","1",0,10000,nothing)
+cv2.createTrackbar("maxval","1",0,50000,nothing)
+cv2.createTrackbar("Width","1",0,255,nothing)
+cv2.createTrackbar("Height","1",0,255,nothing)
 
-cv2.createTrackbar("Width","Trackbar",0,255,nothing)
-cv2.createTrackbar("Height","Trackbar",0,255,nothing)
-
-img = cv2.imread(r'C:\Users\BOSS\Desktop\B01-SMT\Data\image\dev.png')
-
+cap = cv2.VideoCapture(0)
+cap.set(3,2048)
+cap.set(4,2048)
 while True:
-    thresh1 = cv2.getTrackbarPos("Threshhold1","Trackbar")
-    thresh2 = cv2.getTrackbarPos("Threshhold2","Trackbar")
-    value_area = cv2.getTrackbarPos("Area","Trackbar")
-    width = cv2.getTrackbarPos("Width","Trackbar")
-    height = cv2.getTrackbarPos("Height","Trackbar")
-    img_resize = cv2.resize(img,(500,500),interpolation=cv2.INTER_CUBIC)
+    thresh1 = cv2.getTrackbarPos("Threshhold1","1")
+    thresh2 = cv2.getTrackbarPos("Threshhold2","1")
+    value_area = cv2.getTrackbarPos("Area","1")
+    min_val = cv2.getTrackbarPos("minval","1")
+    max_val = cv2.getTrackbarPos("maxval","1")
+    val_width = cv2.getTrackbarPos("Width","1")
+    val_heigt = cv2.getTrackbarPos("Height","1")
+    _,img = cap.read()
+    img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    blur_img = cv2.medianBlur(img,121)
+    thresh_meanC = cv2.adaptiveThreshold(blur_img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
+    kernel = np.ones((5, 5), np.uint8)
+    erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
+    dilation = cv2.dilate(erosion, kernel, iterations=1)
+    circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,
+                               minRadius=60, maxRadius=90)
 
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray_resize = cv2.resize(gray,(500,500),interpolation=cv2.INTER_CUBIC)
-    ret,thresh_img = cv2.threshold(gray_resize,thresh1,255,cv2.THRESH_BINARY)
-    kernel = np.ones((2,2), np.uint8)
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        blue = (0, 0, 255)
+        green = (0, 255, 0)
+        for i in circles[0, :]:
+            # draw the outer circle
+            print(i[2])
+            cv2.circle(img,(i[0],i[1]),i[2], green, 2)
+            
+            # draw the center of the circle
+            cv2.circle(img, (i[0], i[1]), 2, blue, 3)
     
-    # Using cv2.erode() method 
-    thresh_img = cv2.erode(thresh_img, kernel, cv2.BORDER_REFLECT)
-
-    contours, hierarchy = cv2.findContours(thresh_img,
-        cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if area >value_area:
-            x, y, w, h = cv2.boundingRect(cnt)
-            rect = cv2.minAreaRect(cnt)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            M = cv2.moments(box)
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-            
-            # draw the contour and center of the shape on the image
-            cv2.drawContours(img_resize,[box],-1, (0, 255, 0))
-            cv2.circle(img_resize, (cX, cY), 1, (255, 255, 255), -1)
-            cv2.putText(img_resize, "center", (cX - 20, cY - 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            
-            
-           
-    cv2.imshow('Canny Edges After Contouring', thresh_img)
-    cv2.imshow('Contours', img_resize)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    
+    img_resize  = cv2.resize(img,(500,500))
+    thresh_resize = cv2.resize(thresh_meanC,(500,500))
+    imgray_resize = cv2.resize(dilation,(500,500))
+    
+    cv2.imshow("orgiin",img_resize)
+    cv2.imshow("thr1esh",thresh_resize)
+    cv2.imshow("candy",imgray_resize)
+    
+    
+    if cv2.waitKey(1)& 0xFF == ord('q'):
         break
-# After the loop release the cap object
-cap.release()
-# Destroy all the windows
 cv2.destroyAllWindows()
