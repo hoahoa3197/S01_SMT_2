@@ -36,7 +36,7 @@ color: rgb(221, 221, 221);
      <string notr="true">background-color: rgb(40, 44, 52);</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="homePage">
      <widget class="QLabel" name="lbLog">
@@ -543,7 +543,7 @@ background-color: rgb(100, 100, 100);
        <number>1</number>
       </property>
       <attribute name="horizontalHeaderVisible">
-       <bool>false</bool>
+       <bool>true</bool>
       </attribute>
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>true</bool>
@@ -555,7 +555,7 @@ background-color: rgb(100, 100, 100);
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
+       <bool>true</bool>
       </attribute>
       <row/>
       <column>
