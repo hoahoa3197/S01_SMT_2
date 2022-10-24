@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import zxingcpp
 import math
+
 def get_distance(start_point, dest_point):
     x1, y1 = start_point
     x2, y2 = dest_point
@@ -78,20 +79,21 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
     kernel = np.ones((5, 5), np.uint8)
     erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
     dilation = cv2.dilate(erosion, kernel, iterations=1)
-    detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=30,minRadius=0, maxRadius=75)
+    detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,minRadius=50, maxRadius=90)
     pointCenterTem=None
     Point_Cirle=None
 
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > areaTem:
+        if area > 150000:
             
             x,y,w,h=cv2.boundingRect(cnt)
             tem_ROI=image[y:y+h,x:x+w]
             dataResult = read_barcode_zxing(tem_ROI)
             if dataResult is not None:
                 dataCode = dataResult['data'] #Global data
+                print(dataCode)
                 pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
                 pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
                 pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
@@ -108,7 +110,7 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
                     M = cv2.moments(box)
                     cX = int(M["m10"] / M["m00"])
                     cY = int(M["m01"] / M["m00"])
-                    print("Finded Centroid : ", (cX,cY))
+                    print("Finded Centroid Stamp : ", (cX,cY))
                     pointCenterTem = (cX,cY)
     # Draw circles that are detected.
     if detected_circles is not None:
@@ -131,19 +133,31 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
                 end_point = getDesPoint(image,(cX,cY),(a,b))
                 cv2.circle(image, end_point, 5, (0, 0, 255), -1)
                 cv2.line(image,(a,b),(end_point),(255,255,255),5)
-        imageOrigin= cv2.resize(image,(500,500))
-        threshStamp = cv2.resize(thresh_tem ,(500,500))
-        houghCircle = cv2.resize(dilation ,(500,500))
-        cv2.imshow('imageOrigin', imageOrigin)
-        cv2.imshow('threshStamp',threshStamp)
-        cv2.imshow('houghCircle',houghCircle)
-        cv2.waitKey(0)
+       
     else:
         print("Can't find the axis center !")
+    imageOrigin= cv2.resize(image,(500,500))
+    threshStamp = cv2.resize(thresh_tem ,(500,500))
+    houghCircle = cv2.resize(dilation ,(500,500))
+    cv2.imshow('imageOrigin', imageOrigin)
+    cv2.imshow('threshStamp',threshStamp)
+    cv2.imshow('houghCircle',houghCircle)
 
 
 
+def nothing(x):
+    pass
 
+cv2.namedWindow("Config")
+cv2.createTrackbar("Threshhold1","Config",100,255, nothing)
+cv2.createTrackbar("Area","Config",10,50000, nothing)
 image = cv2.imread(r'C:\Users\BOSS\Desktop\S01_SMT_2\Data\image\CT4.png')
-result = findOppositePoint(image,170,10000)
-print(result)
+cap = cv2.VideoCapture(0)
+cap.set(3,2048)
+cap.set(4,2048)
+while True:
+    _,img = cap.read()
+    result = findOppositePoint(img,160,10000)
+    print(result)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break

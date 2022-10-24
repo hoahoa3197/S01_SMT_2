@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self.counter = 0
         self.listBarcode  = []
         self.flag =False
-        self.port = "COM6"
+        self.port = "COM15"
         self.serial = QSerialPort(self)
         self.serial.setPortName(self.port)
         if self.serial.open(QIODevice.ReadWrite):
@@ -252,7 +252,6 @@ class MainWindow(QMainWindow):
         endpt_x = int(start_point[0] - 2048*np.cos(theta))
         endpt_y = int(start_point[1] - 2048*np.sin(theta))
         end_points= (endpt_x, endpt_y)
-        print("End_point:" ,end_points)
         Points=self.linePoints(start_point[0],start_point[1],end_points[0],end_points[1])
         
         for point in Points:
@@ -278,20 +277,18 @@ class MainWindow(QMainWindow):
         kernel = np.ones((5, 5), np.uint8)
         erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
         dilation = cv2.dilate(erosion, kernel, iterations=1)
-        detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=30,minRadius=0, maxRadius=75)
+        detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,minRadius=70, maxRadius=90)
         pointCenterTem=None
         Point_Cirle=None
-
-
         for cnt in contours:
             area = cv2.contourArea(cnt)
             if area > areaTem:
-                
                 x,y,w,h=cv2.boundingRect(cnt)
                 tem_ROI=image[y:y+h,x:x+w]
                 dataResult = self.read_barcode_zxing(tem_ROI)
                 if dataResult is not None:
-                    self.dataCode = dataResult['data'] #Global data
+                    self.dataReadQR = dataResult['data'] #Global data
+                    print('DATA CODE : ' , self.dataReadQR)
                     pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
                     pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
                     pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
@@ -308,8 +305,8 @@ class MainWindow(QMainWindow):
                         M = cv2.moments(box)
                         cX = int(M["m10"] / M["m00"])
                         cY = int(M["m01"] / M["m00"])
-                        print("Finded Centroid : ", (cX,cY))
                         pointCenterTem = (cX,cY)
+                        print("Center Stamp : ", pointCenterTem)
         # Draw circles that are detected.
         if detected_circles is not None:
             print('The axis centroid has been found !')
@@ -323,42 +320,39 @@ class MainWindow(QMainWindow):
                 cv2.circle(image, (a, b), r, (0, 255, 0), 5)
                 # Draw a small circle (of radius 1) to show the center.
                 cv2.circle(image, (a, b), 1, (0, 0, 255), 5)
-            if  Point_Cirle is not None and pointCenterTem is not None:
-                    # cv2.drawContours(image,[box],-1, (255, 255, 0),5)
-                    # cv2.circle(image, (cX, cY), 10, (0, 255, 0),10)
-                    # cv2.putText(image, str((cX, cY)), (cX - 30, cY -30),cv2.FONT_HERSHEY_SIMPLEX, 2.5, (0, 255, 0), 5)
-                    # cv2.line(image,(cX,cY),(a,b),(255,255,0),5)
-                    end_point = self.getDesPoint((cX,cY),(a,b))
-                    # cv2.circle(image, end_point, 5, (0, 0, 255), -1)
-                    # cv2.line(image,(a,b),(end_point),(255,255,255),5)
-                    return end_point
-
-
-            # imageOrigin= cv2.resize(image,(500,500))
-            # threshStamp = cv2.resize(thresh_tem ,(500,500))
-            # houghCircle = cv2.resize(dilation ,(500,500))  
-            # cv2.imshow('imageOrigin', imageOrigin)
-            # cv2.imshow('threshStamp',threshStamp)
-            # cv2.imshow('houghCircle',houghCircle)
-            # cv2.waitKey(0)
         else:
-            print("Can't find the axis center !")
-            return False
+            print("Can't find Axis Centroid")
+        if  Point_Cirle is not None and pointCenterTem is not None:
+                cv2.drawContours(image,[box],-1, (255, 255, 0),5)
+                cv2.circle(image, (cX, cY), 10, (0, 255, 0),10)
+                cv2.putText(image, str((cX, cY)), (cX - 30, cY -30),cv2.FONT_HERSHEY_SIMPLEX, 2.5, (0, 255, 0), 5)
+                cv2.line(image,(cX,cY),(a,b),(255,255,0),5)
+                end_point = self.getDesPoint((cX,cY),(a,b))
+                cv2.circle(image, end_point, 5, (0, 0, 255), 20)
+                cv2.line(image,(a,b),(end_point),(255,255,255),5)
+                imageOrigin= cv2.resize(image,(500,500))
+                threshStamp = cv2.resize(thresh_tem ,(500,500))
+                houghCircle = cv2.resize(dilation ,(500,500))  
+                cv2.imshow('imageOrigin', imageOrigin)
+                cv2.imshow('threshStamp',threshStamp)
+                cv2.imshow('houghCircle',houghCircle)
+                return end_point
+        else:
+                print(" Centroid stamp or Axis is None : ",(pointCenterTem,Point_Cirle))
     def processImage(self):
         if self.flag == True:
-            self.dataCode =[]
+            self.dataReadQR =[]
             for i in range(5):
                 print("Run number: ", i)
-                image = cv2.imread(r'C:\Users\BOSS\Desktop\S01_SMT_2\Data\image\CT4.png')
-                endPoint = self.findOppositePoint(image,190)
-                if endPoint:
-                    self.processData(self.dataCode)
+                cv2.destroyAllWindows()
+                endPoint = self.findOppositePoint(self.cv_img,140,250000)
+                if endPoint is not None:
+                    self.processData(self.dataReadQR)
                     self.sendDataSerial("OK")
                     break
-                else:
-                    self.sendDataSerial("Error")
-                    return
-
+            # Send Error to PLC if Can't read QR 
+            self.sendDataSerial("LOI")
+                
 
             
         self.flag = False
@@ -553,7 +547,7 @@ class MainWindow(QMainWindow):
         l.write_text(self.dataPrint,char_width = 1.5,char_height = 1.5,line_width=36,max_line=10,line_spaces = 10)
         l.endorigin()
         print(l.dumpZPL().encode())
-        l.preview()
+        # l.preview()
         # self.printerSocket.connect((self.host, int(self.port)))
         # self.printerSocket.send(l.dumpZPL().encode())
         # self.printerSocket.close()
