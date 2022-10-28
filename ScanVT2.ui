@@ -36,7 +36,7 @@ color: rgb(221, 221, 221);
      <string notr="true">background-color: rgb(40, 44, 52);</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="homePage">
      <widget class="QLabel" name="lbLog">
@@ -543,7 +543,7 @@ background-color: rgb(100, 100, 100);
        <number>1</number>
       </property>
       <attribute name="horizontalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>true</bool>
@@ -555,7 +555,7 @@ background-color: rgb(100, 100, 100);
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
       <row/>
       <column>
@@ -615,70 +615,6 @@ background-color: rgb(100, 100, 100);
        </property>
       </column>
      </widget>
-     <widget class="QLabel" name="lb_MaNCU">
-      <property name="geometry">
-       <rect>
-        <x>531</x>
-        <y>25</y>
-        <width>55</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-size:14px;
-color:#DDDDDD;</string>
-      </property>
-      <property name="text">
-       <string>MÃ NCU</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="lb_nameNCU">
-      <property name="geometry">
-       <rect>
-        <x>531</x>
-        <y>133</y>
-        <width>54</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-size:14px;
-color:#DDDDDD;</string>
-      </property>
-      <property name="text">
-       <string>Tên NCU</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="lb_DATE_5">
-      <property name="geometry">
-       <rect>
-        <x>531</x>
-        <y>187</y>
-        <width>92</width>
-        <height>38</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-size:14px;
-color:#DDDDDD;</string>
-      </property>
-      <property name="text">
-       <string>Format
-(Ex: 1-1-5-4-2)</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::PlainText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QLineEdit" name="txtnameNCU">
       <property name="geometry">
        <rect>
@@ -737,26 +673,6 @@ QLineEdit:focus {
       </property>
       <property name="readOnly">
        <bool>false</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="lb_PN_ADD">
-      <property name="geometry">
-       <rect>
-        <x>531</x>
-        <y>79</y>
-        <width>18</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-size:14px;
-color:#DDDDDD;</string>
-      </property>
-      <property name="text">
-       <string>PN</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="txtformat">
@@ -871,52 +787,203 @@ background-color: rgb(100, 100, 100);
        <string>Upload</string>
       </property>
      </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>531</x>
+        <y>25</y>
+        <width>88</width>
+        <height>202</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="horizontalSpacing">
+        <number>8</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>35</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lb_MaNCU">
+         <property name="styleSheet">
+          <string notr="true">font-size:14px;
+color:#DDDDDD;</string>
+         </property>
+         <property name="text">
+          <string>NCU Code</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="lb_PN_ADD">
+         <property name="styleSheet">
+          <string notr="true">font-size:14px;
+color:#DDDDDD;</string>
+         </property>
+         <property name="text">
+          <string>PN Code</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="lb_nameNCU">
+         <property name="styleSheet">
+          <string notr="true">font-size:14px;
+color:#DDDDDD;</string>
+         </property>
+         <property name="text">
+          <string>Name NCU</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lb_DATE_5">
+         <property name="styleSheet">
+          <string notr="true">font-size:14px;
+color:#DDDDDD;</string>
+         </property>
+         <property name="text">
+          <string>Format
+(Ex: 1-5-4-2)</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
     <widget class="QWidget" name="pagePrinterConfig">
+     <widget class="QLineEdit" name="txtHost">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>10</y>
+        <width>201</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLineEdit {
+background-color: rgb(33, 37, 43);
+border-radius:15px;
+color:#DDDDDD;
+font-size: 24px;
+text-align:center;
+padding-left:10px;
+
+}
+QLineEdit:hover {
+	border: 2px solid rgb(64, 71, 88);
+}
+QLineEdit:focus {
+	border: 2px solid rgb(91, 101, 124);
+}</string>
+      </property>
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPort">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>60</y>
+        <width>201</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLineEdit {
+background-color: rgb(33, 37, 43);
+border-radius:15px;
+color:#DDDDDD;
+font-size: 24px;
+text-align:center;
+padding-left:10px;
+
+}
+QLineEdit:hover {
+	border: 2px solid rgb(64, 71, 88);
+}
+QLineEdit:focus {
+	border: 2px solid rgb(91, 101, 124);
+}</string>
+      </property>
+      <property name="text">
+       <string>12345</string>
+      </property>
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+     </widget>
      <widget class="QPushButton" name="btnConnectPrinter">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>150</y>
-        <width>75</width>
-        <height>23</height>
+        <x>150</x>
+        <y>120</y>
+        <width>111</width>
+        <height>41</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">*{color:#DDDDDD;
+background-color: rgb(52, 59, 72);
+border:none;
+font-size: 14px;
+border-radius:10px;
+}
+:hover{
+border: solid red;
+background-color: rgb(100, 100, 100);
+}
+</string>
       </property>
       <property name="text">
        <string>Connect</string>
       </property>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
-        <x>60</x>
-        <y>60</y>
-        <width>174</width>
-        <height>54</height>
+        <x>20</x>
+        <y>10</y>
+        <width>51</width>
+        <height>31</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>HOST</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="txtHost"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>PORT</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="txtPort"/>
-       </item>
-      </layout>
+      <property name="text">
+       <string>HOST</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PORT</string>
+      </property>
      </widget>
     </widget>
    </widget>
@@ -963,14 +1030,20 @@ QPushButton:hover{
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>Data/Icon/icon_menu.png</normaloff>Data/Icon/icon_menu.png</iconset>
+       <normaloff>Data/Icon/home.png</normaloff>Data/Icon/home.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>24</width>
+       <height>24</height>
+      </size>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_SQL">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>40</y>
+       <y>45</y>
        <width>80</width>
        <height>45</height>
       </rect>
@@ -988,14 +1061,20 @@ QPushButton:hover{
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>Data/Icon/icon_settings.png</normaloff>Data/Icon/icon_settings.png</iconset>
+       <normaloff>Data/Icon/data.png</normaloff>Data/Icon/data.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>24</width>
+       <height>24</height>
+      </size>
      </property>
     </widget>
     <widget class="QPushButton" name="btnPrintConf">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>80</y>
+       <y>90</y>
        <width>80</width>
        <height>45</height>
       </rect>
@@ -1006,14 +1085,21 @@ border:none;
 }
 QPushButton:hover{
 	background-color: rgb(40, 44, 52);
-}</string>
+}
+</string>
      </property>
      <property name="text">
       <string>PRINT</string>
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>Data/Icon/icon_settings.png</normaloff>Data/Icon/icon_settings.png</iconset>
+       <normaloff>Data/image/printer-fill.png</normaloff>Data/image/printer-fill.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
      </property>
     </widget>
    </widget>

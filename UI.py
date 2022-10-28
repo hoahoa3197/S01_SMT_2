@@ -15,7 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHeaderView,
+from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHeaderView,
     QLabel, QLineEdit, QMainWindow, QPlainTextEdit,
     QPushButton, QSizePolicy, QStackedWidget, QTableWidget,
     QTableWidgetItem, QWidget)
@@ -300,30 +300,11 @@ class Ui_MainWindow(object):
         self.dataTableWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.dataTableWidget.setGridStyle(Qt.DashDotDotLine)
         self.dataTableWidget.setRowCount(1)
-        self.dataTableWidget.horizontalHeader().setVisible(True)
+        self.dataTableWidget.horizontalHeader().setVisible(False)
         self.dataTableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.dataTableWidget.horizontalHeader().setDefaultSectionSize(120)
         self.dataTableWidget.horizontalHeader().setStretchLastSection(False)
-        self.dataTableWidget.verticalHeader().setVisible(True)
-        self.lb_MaNCU = QLabel(self.dataPage)
-        self.lb_MaNCU.setObjectName(u"lb_MaNCU")
-        self.lb_MaNCU.setGeometry(QRect(531, 25, 55, 19))
-        self.lb_MaNCU.setStyleSheet(u"font-size:14px;\n"
-"color:#DDDDDD;")
-        self.lb_MaNCU.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_nameNCU = QLabel(self.dataPage)
-        self.lb_nameNCU.setObjectName(u"lb_nameNCU")
-        self.lb_nameNCU.setGeometry(QRect(531, 133, 54, 19))
-        self.lb_nameNCU.setStyleSheet(u"font-size:14px;\n"
-"color:#DDDDDD;")
-        self.lb_nameNCU.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_DATE_5 = QLabel(self.dataPage)
-        self.lb_DATE_5.setObjectName(u"lb_DATE_5")
-        self.lb_DATE_5.setGeometry(QRect(531, 187, 92, 38))
-        self.lb_DATE_5.setStyleSheet(u"font-size:14px;\n"
-"color:#DDDDDD;")
-        self.lb_DATE_5.setTextFormat(Qt.PlainText)
-        self.lb_DATE_5.setAlignment(Qt.AlignCenter)
+        self.dataTableWidget.verticalHeader().setVisible(False)
         self.txtnameNCU = QLineEdit(self.dataPage)
         self.txtnameNCU.setObjectName(u"txtnameNCU")
         self.txtnameNCU.setGeometry(QRect(629, 133, 201, 34))
@@ -362,12 +343,6 @@ class Ui_MainWindow(object):
 "	border: 2px solid rgb(91, 101, 124);\n"
 "}")
         self.txt_PN.setReadOnly(False)
-        self.lb_PN_ADD = QLabel(self.dataPage)
-        self.lb_PN_ADD.setObjectName(u"lb_PN_ADD")
-        self.lb_PN_ADD.setGeometry(QRect(531, 79, 18, 19))
-        self.lb_PN_ADD.setStyleSheet(u"font-size:14px;\n"
-"color:#DDDDDD;")
-        self.lb_PN_ADD.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.txtformat = QLineEdit(self.dataPage)
         self.txtformat.setObjectName(u"txtformat")
         self.txtformat.setGeometry(QRect(629, 189, 201, 34))
@@ -434,38 +409,108 @@ class Ui_MainWindow(object):
 "background-color: rgb(100, 100, 100);\n"
 "}\n"
 "")
+        self.widget = QWidget(self.dataPage)
+        self.widget.setObjectName(u"widget")
+        self.widget.setGeometry(QRect(531, 25, 88, 202))
+        self.formLayout = QFormLayout(self.widget)
+        self.formLayout.setObjectName(u"formLayout")
+        self.formLayout.setHorizontalSpacing(8)
+        self.formLayout.setVerticalSpacing(35)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.lb_MaNCU = QLabel(self.widget)
+        self.lb_MaNCU.setObjectName(u"lb_MaNCU")
+        self.lb_MaNCU.setStyleSheet(u"font-size:14px;\n"
+"color:#DDDDDD;")
+        self.lb_MaNCU.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.lb_MaNCU)
+
+        self.lb_PN_ADD = QLabel(self.widget)
+        self.lb_PN_ADD.setObjectName(u"lb_PN_ADD")
+        self.lb_PN_ADD.setStyleSheet(u"font-size:14px;\n"
+"color:#DDDDDD;")
+        self.lb_PN_ADD.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.lb_PN_ADD)
+
+        self.lb_nameNCU = QLabel(self.widget)
+        self.lb_nameNCU.setObjectName(u"lb_nameNCU")
+        self.lb_nameNCU.setStyleSheet(u"font-size:14px;\n"
+"color:#DDDDDD;")
+        self.lb_nameNCU.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.lb_nameNCU)
+
+        self.lb_DATE_5 = QLabel(self.widget)
+        self.lb_DATE_5.setObjectName(u"lb_DATE_5")
+        self.lb_DATE_5.setStyleSheet(u"font-size:14px;\n"
+"color:#DDDDDD;")
+        self.lb_DATE_5.setTextFormat(Qt.PlainText)
+        self.lb_DATE_5.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+
+        self.formLayout.setWidget(3, QFormLayout.LabelRole, self.lb_DATE_5)
+
         self.stackedWidget.addWidget(self.dataPage)
         self.pagePrinterConfig = QWidget()
         self.pagePrinterConfig.setObjectName(u"pagePrinterConfig")
+        self.txtHost = QLineEdit(self.pagePrinterConfig)
+        self.txtHost.setObjectName(u"txtHost")
+        self.txtHost.setGeometry(QRect(110, 10, 201, 34))
+        self.txtHost.setStyleSheet(u"QLineEdit {\n"
+"background-color: rgb(33, 37, 43);\n"
+"border-radius:15px;\n"
+"color:#DDDDDD;\n"
+"font-size: 24px;\n"
+"text-align:center;\n"
+"padding-left:10px;\n"
+"\n"
+"}\n"
+"QLineEdit:hover {\n"
+"	border: 2px solid rgb(64, 71, 88);\n"
+"}\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid rgb(91, 101, 124);\n"
+"}")
+        self.txtHost.setReadOnly(False)
+        self.txtPort = QLineEdit(self.pagePrinterConfig)
+        self.txtPort.setObjectName(u"txtPort")
+        self.txtPort.setGeometry(QRect(110, 60, 201, 34))
+        self.txtPort.setStyleSheet(u"QLineEdit {\n"
+"background-color: rgb(33, 37, 43);\n"
+"border-radius:15px;\n"
+"color:#DDDDDD;\n"
+"font-size: 24px;\n"
+"text-align:center;\n"
+"padding-left:10px;\n"
+"\n"
+"}\n"
+"QLineEdit:hover {\n"
+"	border: 2px solid rgb(64, 71, 88);\n"
+"}\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid rgb(91, 101, 124);\n"
+"}")
+        self.txtPort.setReadOnly(False)
         self.btnConnectPrinter = QPushButton(self.pagePrinterConfig)
         self.btnConnectPrinter.setObjectName(u"btnConnectPrinter")
-        self.btnConnectPrinter.setGeometry(QRect(70, 150, 75, 23))
-        self.layoutWidget = QWidget(self.pagePrinterConfig)
-        self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(60, 60, 174, 54))
-        self.gridLayout = QGridLayout(self.layoutWidget)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.label = QLabel(self.layoutWidget)
+        self.btnConnectPrinter.setGeometry(QRect(150, 120, 111, 41))
+        self.btnConnectPrinter.setStyleSheet(u"*{color:#DDDDDD;\n"
+"background-color: rgb(52, 59, 72);\n"
+"border:none;\n"
+"font-size: 14px;\n"
+"border-radius:10px;\n"
+"}\n"
+":hover{\n"
+"border: solid red;\n"
+"background-color: rgb(100, 100, 100);\n"
+"}\n"
+"")
+        self.label = QLabel(self.pagePrinterConfig)
         self.label.setObjectName(u"label")
-
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-
-        self.txtHost = QLineEdit(self.layoutWidget)
-        self.txtHost.setObjectName(u"txtHost")
-
-        self.gridLayout.addWidget(self.txtHost, 0, 1, 1, 1)
-
-        self.label_2 = QLabel(self.layoutWidget)
+        self.label.setGeometry(QRect(20, 10, 51, 31))
+        self.label_2 = QLabel(self.pagePrinterConfig)
         self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
-
-        self.txtPort = QLineEdit(self.layoutWidget)
-        self.txtPort.setObjectName(u"txtPort")
-
-        self.gridLayout.addWidget(self.txtPort, 1, 1, 1, 1)
-
+        self.label_2.setGeometry(QRect(20, 70, 51, 21))
         self.stackedWidget.addWidget(self.pagePrinterConfig)
         self.frame_2 = QFrame(self.centralwidget)
         self.frame_2.setObjectName(u"frame_2")
@@ -484,11 +529,12 @@ class Ui_MainWindow(object):
 "	background-color: rgb(40, 44, 52);\n"
 "}")
         icon1 = QIcon()
-        icon1.addFile(u"Data/Icon/icon_menu.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"Data/Icon/home.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_Home.setIcon(icon1)
+        self.btn_Home.setIconSize(QSize(24, 24))
         self.btn_SQL = QPushButton(self.frame_2)
         self.btn_SQL.setObjectName(u"btn_SQL")
-        self.btn_SQL.setGeometry(QRect(0, 40, 80, 45))
+        self.btn_SQL.setGeometry(QRect(0, 45, 80, 45))
         self.btn_SQL.setStyleSheet(u"QPushButton {\n"
 "border:none;\n"
 "}\n"
@@ -496,18 +542,23 @@ class Ui_MainWindow(object):
 "	background-color: rgb(40, 44, 52);\n"
 "}")
         icon2 = QIcon()
-        icon2.addFile(u"Data/Icon/icon_settings.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u"Data/Icon/data.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_SQL.setIcon(icon2)
+        self.btn_SQL.setIconSize(QSize(24, 24))
         self.btnPrintConf = QPushButton(self.frame_2)
         self.btnPrintConf.setObjectName(u"btnPrintConf")
-        self.btnPrintConf.setGeometry(QRect(0, 80, 80, 45))
+        self.btnPrintConf.setGeometry(QRect(0, 90, 80, 45))
         self.btnPrintConf.setStyleSheet(u"QPushButton {\n"
 "border:none;\n"
 "}\n"
 "QPushButton:hover{\n"
 "	background-color: rgb(40, 44, 52);\n"
-"}")
-        self.btnPrintConf.setIcon(icon2)
+"}\n"
+"")
+        icon3 = QIcon()
+        icon3.addFile(u"Data/image/printer-fill.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnPrintConf.setIcon(icon3)
+        self.btnPrintConf.setIconSize(QSize(20, 20))
         self.frame_3 = QFrame(self.centralwidget)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setGeometry(QRect(80, 0, 920, 60))
@@ -540,7 +591,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -567,13 +618,15 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"T\u00ean NCU", None));
         ___qtablewidgetitem3 = self.dataTableWidget.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Format", None));
-        self.lb_MaNCU.setText(QCoreApplication.translate("MainWindow", u"M\u00c3 NCU", None))
-        self.lb_nameNCU.setText(QCoreApplication.translate("MainWindow", u"T\u00ean NCU", None))
-        self.lb_DATE_5.setText(QCoreApplication.translate("MainWindow", u"Format\n"
-"(Ex: 1-1-5-4-2)", None))
-        self.lb_PN_ADD.setText(QCoreApplication.translate("MainWindow", u"PN", None))
         self.btnAdd.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
+        self.lb_MaNCU.setText(QCoreApplication.translate("MainWindow", u"NCU Code", None))
+        self.lb_PN_ADD.setText(QCoreApplication.translate("MainWindow", u"PN Code", None))
+        self.lb_nameNCU.setText(QCoreApplication.translate("MainWindow", u"Name NCU", None))
+        self.lb_DATE_5.setText(QCoreApplication.translate("MainWindow", u"Format\n"
+"(Ex: 1-5-4-2)", None))
+        self.txtHost.setText(QCoreApplication.translate("MainWindow", u"127.0.0.1", None))
+        self.txtPort.setText(QCoreApplication.translate("MainWindow", u"12345", None))
         self.btnConnectPrinter.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"HOST", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"PORT", None))

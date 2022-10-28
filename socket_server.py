@@ -28,9 +28,12 @@ while True:
 # Establish connection with client.
     c, addr = s.accept()	
     print ('Got connection from', addr )
+    data = c.recv(1024).decode('utf-8')
+    print(data)
+    if data == 'ping':
 
-    # send a thank you message to the client. encoding to send byte type.
-    c.send('Thank you for connecting'.encode())
+        # send a thank you message to the client. encoding to send byte type.
+        c.send('Thank you for connecting'.encode())
 
     # Close the connection with the client
     c.close()

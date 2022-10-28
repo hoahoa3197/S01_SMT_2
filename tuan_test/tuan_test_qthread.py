@@ -1,7 +1,6 @@
 import math
 import sys
 from  sqlite3 import *
-import socket
 import os
 import serial
 from time import sleep
@@ -9,6 +8,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtSerialPort import QSerialPort
+from PySide6.QtNetwork import QTcpSocket,QTcpServer,QHostAddress
+
 from UI_ import Ui_MainWindow
 from time import sleep
 
@@ -17,22 +18,19 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.uic = Ui_MainWindow()
         self.uic.setupUi(self)
-        self.uic.btnClick.clicked.connect(self.btnClicked)
-         # open the serial port
-        self.serial = QSerialPort(self)
-        self.serial.setPortName("COM6")
-        if self.serial.open(QIODevice.ReadWrite):
-            self.serial.setBaudRate(QSerialPort.Baud115200)
-            self.serial.setDataBits(QSerialPort.Data8)
-            self.serial.setParity(QSerialPort.NoParity)
-            self.serial.setStopBits(QSerialPort.OneStop)
-            self.serial.readyRead.connect(self.reviceData)
-            # 
+         # SOCKEt
+        self.server = QTcpServer()
+        if self.server.listen(QHostAddress.Any, 8080):
+            print("Server Start")
         else:
-            raise IOError("Cannot connect to device on port ")
-    def btnClicked(self):
-        print("Click ed")
-    # Revice Data From Serial
+            QMessageBox.critical(self, "QTCPServer", f"Unable to start the server: {self.server.errorString()}.")
+
+            self.server.close()
+            self.server.deleteLater()
+    def new_connection(self) -> None:
+        while self.server.hasPendingConnections():
+            self.append_to_socket_list(self.server.nextPendingConnection())
+       
     def reviceData(self):
         print("Read data")
         text = self.serial.readLine().data().decode()

@@ -16,6 +16,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtSerialPort import QSerialPort
 from PySide6.QtWidgets import QMainWindow,QApplication,QMessageBox,QTableWidgetItem
 from PySide6.QtCore import *
+from PySide6.QtNetwork import QTcpSocket
 from PySide6.QtGui import QPixmap,QImage
 from datetime import datetime 
 from UI import Ui_MainWindow
@@ -184,8 +185,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.uic = Ui_MainWindow()
         self.uic.setupUi(self)
-        self.uic.btn_Home.clicked.connect(self.btn_Home_Clicked)
         self.uic.stackedWidget.setCurrentWidget(self.uic.homePage)
+        self.uic.btn_Home.clicked.connect(self.btn_Home_Clicked)
         self.uic.btn_Home.clicked.connect(self.btn_Home_Clicked)
         self.uic.btn_SQL.clicked.connect(self.btn_SQL_Clicked)
         self.uic.btnPrintConf.clicked.connect(self.btn_Printer_Clicked)
@@ -193,8 +194,9 @@ class MainWindow(QMainWindow):
         self.uic.btnUpload.clicked.connect(self.btn_Upload_Clicked)
         self.uic.btnAdd.clicked.connect(self.btn_Add_Clicked)
         self.uic.btnPrint.clicked.connect(self.btnPrintClicked)
-        self.uic.dataTableWidget.verticalHeader().sectionClicked.connect(self.verticalHeaderClicked)
         self.uic.btnCapture.clicked.connect(self.btnCaptureClicked)
+        self.uic.dataTableWidget.verticalHeader().sectionClicked.connect(self.verticalHeaderClicked)
+        self.printerSocket = QTcpSocket()
          # create the video capture thread
         self.camera = VideoThread()
         self.camera.start()
@@ -207,9 +209,14 @@ class MainWindow(QMainWindow):
         self.counter = 0
         self.listBarcode  = []
         self.flag =False
-        self.port = "COM15"
+        self.port = "COM5"
+        self.initSerial(self.port)
+
+
+
+    def initSerial(self,port):
         self.serial = QSerialPort(self)
-        self.serial.setPortName(self.port)
+        self.serial.setPortName(port)
         if self.serial.open(QIODevice.ReadWrite):
             self.serial.setBaudRate(QSerialPort.Baud115200)
             self.serial.setDataBits(QSerialPort.Data8)
@@ -219,14 +226,21 @@ class MainWindow(QMainWindow):
             # 
         else:
             raise IOError("Cannot connect to device on port: ",self.port)
+        return
+    @QtCore.Slot()
+    
+    def receiveSocketData(self):
+        dataSocket = bytes(self.printerSocket.readAll()).decode()
+        print("Socket Data: ",dataSocket)
+    def sendDataSocket(self,data):
+        self.printerSocket.write(data.encode())
+
     @QtCore.Slot()
     def reviceDataSerial(self):
         dataRevice = self.serial.readLine().data().decode()
         if dataRevice == "SCAN":
             self.camera.scanStampProcess.emit()
             # self.flag = True
-            
-    @QtCore.Slot()
     def sendDataSerial(self,data):
         self.serial.write(data.encode())
         
@@ -239,22 +253,21 @@ class MainWindow(QMainWindow):
             self.sendDataSerial("PLC")
 
     def btnCaptureClicked(self):
-        pass
+        print("CLICKEDD")
+        self.printerSocket.connectToHost(self.host,self.port)
+        self.printerSocket.write("PoNGGG".encode())
 
     def btn_Connect_Printer(self):
         self.host = self.uic.txtHost.text()
-        self.port = self.uic.txtPort.text()
+        self.port = int(self.uic.txtPort.text())
         print(self.host)
         print(self.port)
-        
-        self.printerSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        # try:           
-        self.printerSocket.connect((self.host, int(self.port))) #connecting to host
-        self.printerSocket.send(b"^XA^A0N,50,50^FO50,50^FDSocket Test^FS^XZ")#using bytes
-        self.printerSocket.close () #closing connection
-        # except:
-        #     print("Error with the connection")
-        
+        self.printerSocket.connectToHost(self.host,self.port)
+        self.printerSocket.write("ping".encode())
+        self.printerSocket.readyRead.connect(self.receiveSocketData)
+
+        # print(data)
+
     def verticalHeaderClicked(self):
         self.dataShow = []
         numcol = self.uic.dataTableWidget.columnCount()
@@ -512,35 +525,36 @@ class MainWindow(QMainWindow):
         self.counter +=1
         self.printData()
     def btnPrintClicked(self):
-        print("Printer Clicked ! ")
-        self.dataPN = self.uic.txtPN.text()
-        self.dataVendor = self.uic.txtVendor.text()
-        self.dataLOT = self.uic.txtLOT.text()
-        self.dataDate = self.uic.txtDATE.text()
-        self.dataQTY = self.uic.txtQTY.text()
-        self.dataPrintDate = self.uic.txtPRINTDATE.text()
-        self.dataCount = self.uic.txtCount.text()
-        self.dataPrint = self.dataPN + "_" + self.dataVendor +"_"+ self.dataLOT +"_"+ self.dataDate + "_" + self.dataQTY+"_" + self.dataPrintDate +"_" +  self.dataCount
-        encoded = encode(self.dataPrint.encode('utf8'))
-        img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
-        imagePrint = pathImage + self.dataPN+".png"
-        img.save(imagePrint)
-        # Send Data To Printer
+    #     print("Printer Clicked ! ")
+    #     self.dataPN = self.uic.txtPN.text()
+    #     self.dataVendor = self.uic.txtVendor.text()
+    #     self.dataLOT = self.uic.txtLOT.text()
+    #     self.dataDate = self.uic.txtDATE.text()
+    #     self.dataQTY = self.uic.txtQTY.text()
+    #     self.dataPrintDate = self.uic.txtPRINTDATE.text()
+    #     self.dataCount = self.uic.txtCount.text()
+    #     self.dataPrint = self.dataPN + "_" + self.dataVendor +"_"+ self.dataLOT +"_"+ self.dataDate + "_" + self.dataQTY+"_" + self.dataPrintDate +"_" +  self.dataCount
+    #     encoded = encode(self.dataPrint.encode('utf8'))
+    #     img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
+    #     imagePrint = pathImage + self.dataPN+".png"
+    #     img.save(imagePrint)
+    #     # Send Data To Printer
         
-        l = zpl.Label(10,50)
-        image_width = 9
-        l.origin(.5,.5)
-        l.write_graphic(Image.open(imagePrint),image_width)
-        l.endorigin()
-        l.origin(12, 1.5)
-        l.write_text(self.dataPrint,char_width = 1.5,char_height = 1.5,line_width=36,max_line=10,line_spaces = 10)
-        l.endorigin()
-        print(l.dumpZPL().encode())
-        self.printerSocket.connect((self.host, int(self.port)))
-        self.printerSocket.send(l.dumpZPL().encode())
-        self.printerSocket.close()
-    # Remove File Image when send to Printer
-        os.remove(imagePrint)
+    #     l = zpl.Label(10,50)
+    #     image_width = 9
+    #     l.origin(.5,.5)
+    #     l.write_graphic(Image.open(imagePrint),image_width)
+    #     l.endorigin()
+    #     l.origin(12, 1.5)
+    #     l.write_text(self.dataPrint,char_width = 1.5,char_height = 1.5,line_width=36,max_line=10,line_spaces = 10)
+    #     l.endorigin()
+    #     print(l.dumpZPL().encode())
+    #     self.printerSocket.connectToHost((self.host, int(self.port)))
+    #     self.printerSocket.write(l.dumpZPL().encode())
+    # # Remove File Image when send to Printer
+    #     os.remove(imagePrint)
+        self.printerSocket.connectToHost(self.host, self.port)
+        self.printerSocket.write("Printer Data".encode())
     def printData(self):
         print("Printing")
         dataPN = self.uic.txtPN.text()
