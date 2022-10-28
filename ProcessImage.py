@@ -67,62 +67,63 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
         Return : - Data QR of tem
                  - Opposite point (x,y)
     """
+    starProcess = cv2.getTickCount()
     #Stamp Process
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     _,thresh_tem = cv2.threshold(gray.copy(),val_thresh,255,cv2.THRESH_BINARY)
-    kernel = np.ones((1,1), np.uint8)
-    thresh_tem = cv2.erode(thresh_tem, kernel, cv2.BORDER_REFLECT)
+    kernelStamp = np.ones((5,5), np.uint8)
+    thresh_tem = cv2.erode(thresh_tem, kernelStamp, cv2.BORDER_REFLECT)
     contours, _ = cv2.findContours(thresh_tem,cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     #Axis Process
-    blur_img = cv2.medianBlur(gray,171)
+    blur_img = cv2.medianBlur(gray.copy(),171)
     thresh_meanC = cv2.adaptiveThreshold(blur_img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
     kernel = np.ones((5, 5), np.uint8)
     erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
     dilation = cv2.dilate(erosion, kernel, iterations=1)
-    detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,minRadius=50, maxRadius=90)
+    detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1.5, minDist=200, param1=100, param2=50,minRadius=60, maxRadius=90)
     pointCenterTem=None
     Point_Cirle=None
 
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 150000:
-            
+        if area > 100000:
             x,y,w,h=cv2.boundingRect(cnt)
             tem_ROI=image[y:y+h,x:x+w]
             dataResult = read_barcode_zxing(tem_ROI)
             if dataResult is not None:
                 dataCode = dataResult['data'] #Global data
-                print(dataCode)
-                pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
-                pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
-                pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
-                pos4 = ( dataResult['pos4'][0]+x, dataResult['pos4'][1]+y)
-                resultPoint1 = cv2.pointPolygonTest(cnt, pos1, False) 
-                resultPoint2 = cv2.pointPolygonTest(cnt, pos2, False)
-                resultPoint3 = cv2.pointPolygonTest(cnt, pos3, False)
-                resultPoint4 = cv2.pointPolygonTest(cnt, pos4, False)
-                print("Result position : ",resultPoint1,resultPoint2,resultPoint3,resultPoint4)
-                if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
-                    rect = cv2.minAreaRect(cnt)
-                    box = cv2.boxPoints(rect)
-                    box = np.int0(box)
-                    M = cv2.moments(box)
-                    cX = int(M["m10"] / M["m00"])
-                    cY = int(M["m01"] / M["m00"])
-                    print("Finded Centroid Stamp : ", (cX,cY))
-                    pointCenterTem = (cX,cY)
+                if len(dataCode) ==6 or len(dataCode) ==7:
+                    pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
+                    pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
+                    pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
+                    pos4 = ( dataResult['pos4'][0]+x, dataResult['pos4'][1]+y)
+                    resultPoint1 = cv2.pointPolygonTest(cnt, pos1, False) 
+                    resultPoint2 = cv2.pointPolygonTest(cnt, pos2, False)
+                    resultPoint3 = cv2.pointPolygonTest(cnt, pos3, False)
+                    resultPoint4 = cv2.pointPolygonTest(cnt, pos4, False)
+                    print("Result position : ",resultPoint1,resultPoint2,resultPoint3,resultPoint4)
+                    if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
+                        rect = cv2.minAreaRect(cnt)
+                        box = cv2.boxPoints(rect)
+                        box = np.int0(box)
+                        M = cv2.moments(box)
+                        cX = int(M["m10"] / M["m00"])
+                        cY = int(M["m01"] / M["m00"])
+                        print("Finded Centroid Stamp : ", (cX,cY))
+                        pointCenterTem = (cX,cY)
     # Draw circles that are detected.
     if detected_circles is not None:
         print('The axis centroid has been found !')
         # Convert the circle parameters a, b and r to integers.
         detected_circles = np.uint16(np.around(detected_circles))
-        print(detected_circles)
         for pt in detected_circles[0, :]:
+            print(pt)
+            
             a, b, r = pt[0], pt[1], pt[2]
             Point_Cirle = (a, b)
             # Draw the circumference of the circle.
-            cv2.circle(image, (a, b), r, (0, 255, 0), 5)
+            cv2.circle(image, (a, b), r, (0, 255, 0), 5) 
             # Draw a small circle (of radius 1) to show the center.
             cv2.circle(image, (a, b), 1, (0, 0, 255), 5)
         if  Point_Cirle is not None and pointCenterTem is not None:
@@ -133,6 +134,7 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
                 end_point = getDesPoint(image,(cX,cY),(a,b))
                 cv2.circle(image, end_point, 5, (0, 0, 255), -1)
                 cv2.line(image,(a,b),(end_point),(255,255,255),5)
+                
        
     else:
         print("Can't find the axis center !")
@@ -142,6 +144,9 @@ def findOppositePoint(image,val_thresh,areaTem = 1000):
     cv2.imshow('imageOrigin', imageOrigin)
     cv2.imshow('threshStamp',threshStamp)
     cv2.imshow('houghCircle',houghCircle)
+    endProces = cv2.getTickCount()
+    totalTime = (endProces - starProcess)/cv2.getTickFrequency ()
+    print("Process finish with: {} (s)".format(totalTime))
 
 
 

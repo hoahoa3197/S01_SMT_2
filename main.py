@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
         # connect its signal to the update_image slo
         self.camera.change_pixmap_signal.connect(self.update_image)
         self.oldDataResult = []
+        self.oldImage =[]
         self.dataCode = []
         self.counter = 0
         self.listBarcode  = []
@@ -197,10 +198,9 @@ class MainWindow(QMainWindow):
                
     def update_image(self, cv_img):
         """Updates the image_label with a new opencv image"""
-        self.cv_img = cv_img
         qt_img = self.convert_cv_qt(cv_img)
         self.uic.image_label.setPixmap(qt_img)
-        self.processImage()
+        self.processImage(cv_img)
     def convert_cv_qt(self, cv_img):
         """Convert from an opencv image to QPixmap"""
         resize = cv2.resize(cv_img,(360,360),interpolation = cv2.INTER_CUBIC)
@@ -266,6 +266,7 @@ class MainWindow(QMainWindow):
                     - Opposite point (x,y)
         """
         #Stamp Process
+        starProcess = cv2.getTickCount()
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
         _,thresh_tem = cv2.threshold(gray.copy(),val_thresh,255,cv2.THRESH_BINARY)
         kernel = np.ones((1,1), np.uint8)
@@ -277,7 +278,7 @@ class MainWindow(QMainWindow):
         kernel = np.ones((5, 5), np.uint8)
         erosion = cv2.erode(thresh_meanC, kernel, iterations=1)
         dilation = cv2.dilate(erosion, kernel, iterations=1)
-        detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=25,minRadius=70, maxRadius=90)
+        detected_circles = cv2.HoughCircles(dilation, method=cv2.HOUGH_GRADIENT, dp=1.5, minDist=200, param1=50, param2=50,minRadius=60, maxRadius=90)
         pointCenterTem=None
         Point_Cirle=None
         for cnt in contours:
@@ -288,25 +289,26 @@ class MainWindow(QMainWindow):
                 dataResult = self.read_barcode_zxing(tem_ROI)
                 if dataResult is not None:
                     self.dataReadQR = dataResult['data'] #Global data
-                    print('DATA CODE : ' , self.dataReadQR)
-                    pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
-                    pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
-                    pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
-                    pos4 = ( dataResult['pos4'][0]+x, dataResult['pos4'][1]+y)
-                    resultPoint1 = cv2.pointPolygonTest(cnt, pos1, False) 
-                    resultPoint2 = cv2.pointPolygonTest(cnt, pos2, False)
-                    resultPoint3 = cv2.pointPolygonTest(cnt, pos3, False)
-                    resultPoint4 = cv2.pointPolygonTest(cnt, pos4, False)
-                    print("Result position : ",resultPoint1,resultPoint2,resultPoint3,resultPoint4)
-                    if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
-                        rect = cv2.minAreaRect(cnt)
-                        box = cv2.boxPoints(rect)
-                        box = np.int0(box)
-                        M = cv2.moments(box)
-                        cX = int(M["m10"] / M["m00"])
-                        cY = int(M["m01"] / M["m00"])
-                        pointCenterTem = (cX,cY)
-                        print("Center Stamp : ", pointCenterTem)
+                    if len(self.dataReadQR) == 6 or len(self.dataReadQR) ==7:
+                        print('DATA CODE : ' , self.dataReadQR)
+                        pos1 = ( dataResult['pos1'][0]+x, dataResult['pos1'][1]+y)
+                        pos2 = ( dataResult['pos2'][0]+x, dataResult['pos2'][1]+y)
+                        pos3 = ( dataResult['pos3'][0]+x, dataResult['pos3'][1]+y)
+                        pos4 = ( dataResult['pos4'][0]+x, dataResult['pos4'][1]+y)
+                        resultPoint1 = cv2.pointPolygonTest(cnt, pos1, False) 
+                        resultPoint2 = cv2.pointPolygonTest(cnt, pos2, False)
+                        resultPoint3 = cv2.pointPolygonTest(cnt, pos3, False)
+                        resultPoint4 = cv2.pointPolygonTest(cnt, pos4, False)
+                        print("Result position : ",resultPoint1,resultPoint2,resultPoint3,resultPoint4)
+                        if int(resultPoint1) == 1 and int(resultPoint2) == 1 and int(resultPoint3) == 1 and int(resultPoint4) == 1:
+                            rect = cv2.minAreaRect(cnt)
+                            box = cv2.boxPoints(rect)
+                            box = np.int0(box)
+                            M = cv2.moments(box)
+                            cX = int(M["m10"] / M["m00"])
+                            cY = int(M["m01"] / M["m00"])
+                            pointCenterTem = (cX,cY)
+                            print("Center Stamp : ", pointCenterTem)
         # Draw circles that are detected.
         if detected_circles is not None:
             print('The axis centroid has been found !')
@@ -339,21 +341,21 @@ class MainWindow(QMainWindow):
                 return end_point
         else:
                 print(" Centroid stamp or Axis is None : ",(pointCenterTem,Point_Cirle))
-    def processImage(self):
+    def processImage(self,image):
+        self.oldImage = image
         if self.flag == True:
+            
+            cv2.destroyAllWindows()
             self.dataReadQR =[]
-            for i in range(5):
+            for i in range(10):
                 print("Run number: ", i)
-                cv2.destroyAllWindows()
-                endPoint = self.findOppositePoint(self.cv_img,140,250000)
+                endPoint = self.findOppositePoint(image,160,250000)
                 if endPoint is not None:
                     self.processData(self.dataReadQR)
                     self.sendDataSerial("OK")
                     break
-            # Send Error to PLC if Can't read QR 
+                # Send Error to PLC if Can't read QR 
             self.sendDataSerial("LOI")
-                
-
             
         self.flag = False
     def processData(self,listData):
