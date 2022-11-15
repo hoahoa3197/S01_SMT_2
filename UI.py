@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHeaderView,
-    QLabel, QLineEdit, QMainWindow, QPlainTextEdit,
-    QPushButton, QSizePolicy, QStackedWidget, QTableWidget,
-    QTableWidgetItem, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QAbstractScrollArea, QApplication, QFormLayout,
+    QFrame, QHeaderView, QLabel, QLineEdit,
+    QMainWindow, QPlainTextEdit, QPushButton, QSizePolicy,
+    QStackedWidget, QTableWidget, QTableWidgetItem, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -39,20 +39,6 @@ class Ui_MainWindow(object):
         self.stackedWidget.setStyleSheet(u"background-color: rgb(40, 44, 52);")
         self.homePage = QWidget()
         self.homePage.setObjectName(u"homePage")
-        self.lbLog = QLabel(self.homePage)
-        self.lbLog.setObjectName(u"lbLog")
-        self.lbLog.setGeometry(QRect(0, 360, 341, 31))
-        font = QFont()
-        font.setFamilies([u"Segoe UI"])
-        font.setBold(False)
-        font.setItalic(False)
-        self.lbLog.setFont(font)
-        self.lbLog.setAutoFillBackground(False)
-        self.lbLog.setStyleSheet(u"\n"
-"color : #DA1818;\n"
-"font-size:20px;\n"
-"")
-        self.lbLog.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.textArea = QPlainTextEdit(self.homePage)
         self.textArea.setObjectName(u"textArea")
         self.textArea.setGeometry(QRect(40, 410, 271, 71))
@@ -275,36 +261,6 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.homePage)
         self.dataPage = QWidget()
         self.dataPage.setObjectName(u"dataPage")
-        self.dataTableWidget = QTableWidget(self.dataPage)
-        if (self.dataTableWidget.columnCount() < 4):
-            self.dataTableWidget.setColumnCount(4)
-        brush = QBrush(QColor(0, 0, 0, 255))
-        brush.setStyle(Qt.SolidPattern)
-        __qtablewidgetitem = QTableWidgetItem()
-        __qtablewidgetitem.setForeground(brush);
-        self.dataTableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        __qtablewidgetitem1.setForeground(brush);
-        self.dataTableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        __qtablewidgetitem2 = QTableWidgetItem()
-        __qtablewidgetitem2.setForeground(brush);
-        self.dataTableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
-        __qtablewidgetitem3 = QTableWidgetItem()
-        __qtablewidgetitem3.setForeground(brush);
-        self.dataTableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-        if (self.dataTableWidget.rowCount() < 1):
-            self.dataTableWidget.setRowCount(1)
-        self.dataTableWidget.setObjectName(u"dataTableWidget")
-        self.dataTableWidget.setGeometry(QRect(1, 25, 491, 481))
-        self.dataTableWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.dataTableWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.dataTableWidget.setGridStyle(Qt.DashDotDotLine)
-        self.dataTableWidget.setRowCount(1)
-        self.dataTableWidget.horizontalHeader().setVisible(False)
-        self.dataTableWidget.horizontalHeader().setCascadingSectionResizes(True)
-        self.dataTableWidget.horizontalHeader().setDefaultSectionSize(120)
-        self.dataTableWidget.horizontalHeader().setStretchLastSection(False)
-        self.dataTableWidget.verticalHeader().setVisible(False)
         self.txtnameNCU = QLineEdit(self.dataPage)
         self.txtnameNCU.setObjectName(u"txtnameNCU")
         self.txtnameNCU.setGeometry(QRect(629, 133, 201, 34))
@@ -409,15 +365,15 @@ class Ui_MainWindow(object):
 "background-color: rgb(100, 100, 100);\n"
 "}\n"
 "")
-        self.widget = QWidget(self.dataPage)
-        self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(531, 25, 88, 202))
-        self.formLayout = QFormLayout(self.widget)
+        self.layoutWidget = QWidget(self.dataPage)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.layoutWidget.setGeometry(QRect(531, 25, 88, 202))
+        self.formLayout = QFormLayout(self.layoutWidget)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(8)
         self.formLayout.setVerticalSpacing(35)
         self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.lb_MaNCU = QLabel(self.widget)
+        self.lb_MaNCU = QLabel(self.layoutWidget)
         self.lb_MaNCU.setObjectName(u"lb_MaNCU")
         self.lb_MaNCU.setStyleSheet(u"font-size:14px;\n"
 "color:#DDDDDD;")
@@ -425,7 +381,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(0, QFormLayout.LabelRole, self.lb_MaNCU)
 
-        self.lb_PN_ADD = QLabel(self.widget)
+        self.lb_PN_ADD = QLabel(self.layoutWidget)
         self.lb_PN_ADD.setObjectName(u"lb_PN_ADD")
         self.lb_PN_ADD.setStyleSheet(u"font-size:14px;\n"
 "color:#DDDDDD;")
@@ -433,7 +389,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(1, QFormLayout.LabelRole, self.lb_PN_ADD)
 
-        self.lb_nameNCU = QLabel(self.widget)
+        self.lb_nameNCU = QLabel(self.layoutWidget)
         self.lb_nameNCU.setObjectName(u"lb_nameNCU")
         self.lb_nameNCU.setStyleSheet(u"font-size:14px;\n"
 "color:#DDDDDD;")
@@ -441,7 +397,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(2, QFormLayout.LabelRole, self.lb_nameNCU)
 
-        self.lb_DATE_5 = QLabel(self.widget)
+        self.lb_DATE_5 = QLabel(self.layoutWidget)
         self.lb_DATE_5.setObjectName(u"lb_DATE_5")
         self.lb_DATE_5.setStyleSheet(u"font-size:14px;\n"
 "color:#DDDDDD;")
@@ -450,6 +406,145 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(3, QFormLayout.LabelRole, self.lb_DATE_5)
 
+        self.dataTableWidget = QTableWidget(self.dataPage)
+        if (self.dataTableWidget.columnCount() < 4):
+            self.dataTableWidget.setColumnCount(4)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.dataTableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.dataTableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.dataTableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.dataTableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
+        if (self.dataTableWidget.rowCount() < 1):
+            self.dataTableWidget.setRowCount(1)
+        __qtablewidgetitem4 = QTableWidgetItem()
+        self.dataTableWidget.setVerticalHeaderItem(0, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        self.dataTableWidget.setItem(0, 0, __qtablewidgetitem5)
+        self.dataTableWidget.setObjectName(u"dataTableWidget")
+        self.dataTableWidget.setGeometry(QRect(10, 30, 500, 500))
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.dataTableWidget.sizePolicy().hasHeightForWidth())
+        self.dataTableWidget.setSizePolicy(sizePolicy)
+        palette = QPalette()
+        brush = QBrush(QColor(221, 221, 221, 255))
+        brush.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Active, QPalette.WindowText, brush)
+        brush1 = QBrush(QColor(0, 0, 0, 0))
+        brush1.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Active, QPalette.Button, brush1)
+        palette.setBrush(QPalette.Active, QPalette.Text, brush)
+        palette.setBrush(QPalette.Active, QPalette.ButtonText, brush)
+        brush2 = QBrush(QColor(0, 0, 0, 255))
+        brush2.setStyle(Qt.NoBrush)
+        palette.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette.setBrush(QPalette.Active, QPalette.Window, brush1)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Active, QPalette.PlaceholderText, brush)
+#endif
+        palette.setBrush(QPalette.Inactive, QPalette.WindowText, brush)
+        palette.setBrush(QPalette.Inactive, QPalette.Button, brush1)
+        palette.setBrush(QPalette.Inactive, QPalette.Text, brush)
+        palette.setBrush(QPalette.Inactive, QPalette.ButtonText, brush)
+        brush3 = QBrush(QColor(0, 0, 0, 255))
+        brush3.setStyle(Qt.NoBrush)
+        palette.setBrush(QPalette.Inactive, QPalette.Base, brush3)
+        palette.setBrush(QPalette.Inactive, QPalette.Window, brush1)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Inactive, QPalette.PlaceholderText, brush)
+#endif
+        palette.setBrush(QPalette.Disabled, QPalette.WindowText, brush)
+        palette.setBrush(QPalette.Disabled, QPalette.Button, brush1)
+        palette.setBrush(QPalette.Disabled, QPalette.Text, brush)
+        palette.setBrush(QPalette.Disabled, QPalette.ButtonText, brush)
+        brush4 = QBrush(QColor(0, 0, 0, 255))
+        brush4.setStyle(Qt.NoBrush)
+        palette.setBrush(QPalette.Disabled, QPalette.Base, brush4)
+        palette.setBrush(QPalette.Disabled, QPalette.Window, brush1)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
+#endif
+        self.dataTableWidget.setPalette(palette)
+        self.dataTableWidget.setStyleSheet(u"\n"
+"QTableWidget {\n"
+"     background-color: transparent;\n"
+"     padding: 10px;\n"
+"     border-radius: 5px;\n"
+"     gridline-color: rgb(44, 49, 58);\n"
+"     border-bottom: 1px solid rgb(44, 49, 60);\n"
+"    \n"
+"}\n"
+"\n"
+"QTableWidget::item {\n"
+"     border-color: rgb(44, 49, 60);\n"
+"     padding-left: 5px;\n"
+"     padding-right: 5px;\n"
+"     gridline-color: rgb(44, 49, 60);\n"
+"    \n"
+"}\n"
+"\n"
+"QTableWidget::item:selected {\n"
+"     background-color: rgb(189, 147, 249);\n"
+"    \n"
+"}\n"
+"\n"
+"QHeaderView::section {\n"
+"     background-color: rgb(33, 37, 43);\n"
+"     max-width: 30px;\n"
+"     border: 1px solid rgb(44, 49, 58);\n"
+"     border-style: none;\n"
+"     border-bottom: 1px solid rgb(44, 49, 60);\n"
+"     border-right: 1px solid rgb(44, 49, 60);\n"
+"    \n"
+"}\n"
+"\n"
+"QTableWidget::horizontalHeader {\n"
+"     background-color: rgb(33, 37, 43);\n"
+"    \n"
+"}\n"
+"\n"
+"QHeaderView::section:horizontal {\n"
+"     border: 1px solid rgb(33, 37, 43);\n"
+"     background-color: rgb(33, 37, 4"
+                        "3);\n"
+"     padding: 3px;\n"
+"     border-top-left-radius: 7px;\n"
+"     border-top-right-radius: 7px;\n"
+"    \n"
+"}\n"
+"\n"
+"QHeaderView::section:vertical {\n"
+"     border: 1px solid rgb(44, 49, 60);\n"
+"    \n"
+"}\n"
+"\n"
+"")
+        self.dataTableWidget.setFrameShape(QFrame.NoFrame)
+        self.dataTableWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.dataTableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.dataTableWidget.setAutoScrollMargin(16)
+        self.dataTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.dataTableWidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.dataTableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.dataTableWidget.setShowGrid(True)
+        self.dataTableWidget.setGridStyle(Qt.DashLine)
+        self.dataTableWidget.setSortingEnabled(False)
+        self.dataTableWidget.horizontalHeader().setVisible(True)
+        self.dataTableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        self.dataTableWidget.horizontalHeader().setMinimumSectionSize(30)
+        self.dataTableWidget.horizontalHeader().setDefaultSectionSize(150)
+        self.dataTableWidget.horizontalHeader().setProperty("showSortIndicator", False)
+        self.dataTableWidget.horizontalHeader().setStretchLastSection(True)
+        self.dataTableWidget.verticalHeader().setVisible(False)
+        self.dataTableWidget.verticalHeader().setCascadingSectionResizes(False)
+        self.dataTableWidget.verticalHeader().setMinimumSectionSize(30)
+        self.dataTableWidget.verticalHeader().setDefaultSectionSize(30)
+        self.dataTableWidget.verticalHeader().setHighlightSections(False)
+        self.dataTableWidget.verticalHeader().setStretchLastSection(False)
         self.stackedWidget.addWidget(self.dataPage)
         self.pagePrinterConfig = QWidget()
         self.pagePrinterConfig.setObjectName(u"pagePrinterConfig")
@@ -565,6 +660,20 @@ class Ui_MainWindow(object):
         self.frame_3.setStyleSheet(u"background-color: rgb(33, 37, 43);")
         self.frame_3.setFrameShape(QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QFrame.Raised)
+        self.lbLog = QLabel(self.frame_3)
+        self.lbLog.setObjectName(u"lbLog")
+        self.lbLog.setGeometry(QRect(240, 0, 341, 60))
+        font = QFont()
+        font.setFamilies([u"Segoe UI"])
+        font.setBold(False)
+        font.setItalic(False)
+        self.lbLog.setFont(font)
+        self.lbLog.setAutoFillBackground(False)
+        self.lbLog.setStyleSheet(u"\n"
+"color : #00FF1A;\n"
+"font-size:40px;\n"
+"")
+        self.lbLog.setAlignment(Qt.AlignCenter)
         self.frame_4 = QFrame(self.centralwidget)
         self.frame_4.setObjectName(u"frame_4")
         self.frame_4.setGeometry(QRect(0, 0, 80, 60))
@@ -591,7 +700,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -599,7 +708,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.lbLog.setText("")
         self.image_label.setText("")
         self.btnPrint.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         self.lb_PN.setText(QCoreApplication.translate("MainWindow", u"PN Code", None))
@@ -610,14 +718,6 @@ class Ui_MainWindow(object):
         self.lb_DATE.setText(QCoreApplication.translate("MainWindow", u"DATE", None))
         self.lb_DatePrint.setText(QCoreApplication.translate("MainWindow", u"PRINT DATE", None))
         self.btnCapture.setText(QCoreApplication.translate("MainWindow", u"Capture", None))
-        ___qtablewidgetitem = self.dataTableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"M\u00e3 NCU", None));
-        ___qtablewidgetitem1 = self.dataTableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"PN", None));
-        ___qtablewidgetitem2 = self.dataTableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"T\u00ean NCU", None));
-        ___qtablewidgetitem3 = self.dataTableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Format", None));
         self.btnAdd.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
         self.lb_MaNCU.setText(QCoreApplication.translate("MainWindow", u"NCU Code", None))
@@ -625,6 +725,21 @@ class Ui_MainWindow(object):
         self.lb_nameNCU.setText(QCoreApplication.translate("MainWindow", u"Name NCU", None))
         self.lb_DATE_5.setText(QCoreApplication.translate("MainWindow", u"Format\n"
 "(Ex: 1-5-4-2)", None))
+        ___qtablewidgetitem = self.dataTableWidget.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Supplier Code", None));
+        ___qtablewidgetitem1 = self.dataTableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"P/N", None));
+        ___qtablewidgetitem2 = self.dataTableWidget.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Supplier Name", None));
+        ___qtablewidgetitem3 = self.dataTableWidget.horizontalHeaderItem(3)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Format", None));
+        ___qtablewidgetitem4 = self.dataTableWidget.verticalHeaderItem(0)
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"1", None));
+
+        __sortingEnabled = self.dataTableWidget.isSortingEnabled()
+        self.dataTableWidget.setSortingEnabled(False)
+        self.dataTableWidget.setSortingEnabled(__sortingEnabled)
+
         self.txtHost.setText(QCoreApplication.translate("MainWindow", u"127.0.0.1", None))
         self.txtPort.setText(QCoreApplication.translate("MainWindow", u"12345", None))
         self.btnConnectPrinter.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
@@ -633,6 +748,7 @@ class Ui_MainWindow(object):
         self.btn_Home.setText(QCoreApplication.translate("MainWindow", u" HOME", None))
         self.btn_SQL.setText(QCoreApplication.translate("MainWindow", u" DATA", None))
         self.btnPrintConf.setText(QCoreApplication.translate("MainWindow", u"PRINT", None))
+        self.lbLog.setText(QCoreApplication.translate("MainWindow", u"STATUS : OK", None))
         self.btngoHome.setText("")
     # retranslateUi
 
